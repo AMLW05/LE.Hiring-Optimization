@@ -1,1104 +1,149 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Law Enforcement Hiring Process Optimization Dashboard</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary-blue: #1e3a8a;
-            --secondary-blue: #3b82f6;
-            --accent-gold: #f59e0b;
-            --success-green: #10b981;
-            --warning-red: #ef4444;
-            --text-dark: #1f2937;
-            --text-light: #6b7280;
-            --bg-light: #f8fafc;
-            --bg-white: #ffffff;
-            --border-gray: #e5e7eb;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-            line-height: 1.6;
-        }
-
-        .header {
-            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
-            color: white;
-            padding: 2rem 0;
-            text-align: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            font-weight: 700;
-        }
-
-        .header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-
-        .navigation {
-            background: var(--bg-white);
-            padding: 1rem 0;
-            border-bottom: 2px solid var(--border-gray);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .nav-tabs {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .nav-tab {
-            background: var(--bg-light);
-            border: 2px solid var(--border-gray);
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .nav-tab:hover {
-            background: var(--secondary-blue);
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        .nav-tab.active {
-            background: var(--primary-blue);
-            color: white;
-            border-color: var(--primary-blue);
-        }
-
-        .dashboard-section {
-            display: none;
-            padding: 2rem 0;
-        }
-
-        .dashboard-section.active {
-            display: block;
-        }
-
-        .section-title {
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-            color: var(--primary-blue);
-            text-align: center;
-            font-weight: 700;
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .card {
-            background: var(--bg-white);
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            border: 1px solid var(--border-gray);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-title {
-            font-size: 1.5rem;
-            color: var(--primary-blue);
-            margin-bottom: 1rem;
-            font-weight: 600;
-        }
-
-        .input-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .input-group input, .input-group select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid var(--border-gray);
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-
-        .input-group input:focus, .input-group select:focus {
-            outline: none;
-            border-color: var(--secondary-blue);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .metric-highlight {
-            background: linear-gradient(135deg, var(--accent-gold), #f97316);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            text-align: center;
-            margin: 1rem 0;
-        }
-
-        .metric-highlight h3 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .process-flow {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 2rem 0;
-            padding: 2rem;
-            background: var(--bg-white);
-            border-radius: 12px;
-            border: 2px solid var(--border-gray);
-        }
-
-        .process-step {
-            text-align: center;
-            padding: 1rem;
-            border-radius: 8px;
-            background: var(--bg-light);
-            border: 2px solid var(--border-gray);
-            min-width: 150px;
-            transition: all 0.5s ease;
-        }
-
-        .process-step.active {
-            background: var(--secondary-blue);
-            color: white;
-            transform: scale(1.05);
-        }
-
-        .process-step.improved {
-            background: var(--success-green);
-            color: white;
-        }
-
-        .process-arrow {
-            font-size: 2rem;
-            color: var(--accent-gold);
-            margin: 0 1rem;
-        }
-
-        .timeline-item {
-            display: flex;
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            background: var(--bg-white);
-            border-radius: 12px;
-            border-left: 4px solid var(--secondary-blue);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .timeline-marker {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: var(--secondary-blue);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-right: 1.5rem;
-            flex-shrink: 0;
-        }
-
-        .timeline-content h4 {
-            color: var(--primary-blue);
-            margin-bottom: 0.5rem;
-            font-size: 1.3rem;
-        }
-
-        .benchmark-comparison {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .benchmark-item {
-            background: var(--bg-white);
-            padding: 1.5rem;
-            border-radius: 8px;
-            border: 2px solid var(--border-gray);
-            text-align: center;
-        }
-
-        .benchmark-value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: var(--secondary-blue);
-            margin-bottom: 0.5rem;
-        }
-
-        .research-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .research-item {
-            background: var(--bg-white);
-            padding: 1.5rem;
-            border-radius: 8px;
-            border: 2px solid var(--border-gray);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .research-item:hover {
-            border-color: var(--secondary-blue);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .research-item h4 {
-            color: var(--primary-blue);
-            margin-bottom: 1rem;
-        }
-
-        .research-item .source {
-            font-size: 0.9rem;
-            color: var(--text-light);
-            font-style: italic;
-        }
-
-        .btn {
-            background: var(--secondary-blue);
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn:hover {
-            background: var(--primary-blue);
-        }
-
-        .btn-outline {
-            background: transparent;
-            color: var(--secondary-blue);
-            border: 2px solid var(--secondary-blue);
-        }
-
-        .btn-outline:hover {
-            background: var(--secondary-blue);
-            color: white;
-        }
-
-        .chart-container {
-            height: 400px;
-            margin-top: 2rem;
-            position: relative;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 20px;
-            background: var(--bg-light);
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 1rem 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--success-green), var(--accent-gold));
-            border-radius: 10px;
-            transition: width 1s ease;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-        }
-
-        .modal-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--bg-white);
-            padding: 2rem;
-            border-radius: 12px;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .close-modal {
-            float: right;
-            font-size: 2rem;
-            cursor: pointer;
-            color: var(--text-light);
-        }
-
-        .close-modal:hover {
-            color: var(--text-dark);
-        }
-
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .grid-2 {
-                grid-template-columns: 1fr;
-            }
-            
-            .grid-3 {
-                grid-template-columns: 1fr;
-            }
-            
-            .process-flow {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            .process-arrow {
-                transform: rotate(90deg);
-            }
-            
-            .benchmark-comparison {
-                grid-template-columns: 1fr;
-            }
-            
-            .nav-tabs {
-                flex-direction: column;
-                align-items: center;
-            }
-        }
-
-        @media print {
-            .nav-tab, .btn {
-                display: none !important;
-            }
-            
-            .dashboard-section {
-                display: block !important;
-                page-break-after: always;
-            }
-            
-            .card {
-                box-shadow: none;
-                border: 2px solid var(--border-gray);
-            }
-            
-            .header {
-                background: white !important;
-                color: var(--primary-blue) !important;
-            }
-        }
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Law Enforcement Hiring Optimization</title>
+<style>
+  :root { --ink:#0b1220; --muted:#6b7280; --bg:#f7f7fb; --card:#ffffff; --accent:#1f6feb; --ok:#16a34a; --warn:#f59e0b; }
+  * { box-sizing: border-box; font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; }
+  body { margin:0; background:var(--bg); color:var(--ink); }
+  header { padding:32px 20px; background:linear-gradient(135deg, #102a43, #243b55); color:white; }
+  header h1 { margin:0 0 8px; font-size:28px; }
+  header p { margin:0; opacity:.9 }
+  .wrap { max-width:1100px; margin:0 auto; padding:24px 20px 80px; }
+  .toolbar { display:flex; gap:12px; flex-wrap:wrap; margin:16px 0 24px; }
+  .btn { border:1px solid #d0d7de; background:var(--card); padding:10px 14px; border-radius:10px; cursor:pointer; }
+  .btn:hover { border-color:#b9c0c7 }
+  .btn.primary { background:var(--accent); color:white; border-color:var(--accent); }
+  .grid { display:grid; gap:16px; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); align-items:start; }
+  .card { background:var(--card); border:1px solid #e5e7eb; border-radius:14px; padding:18px; box-shadow:0 1px 2px rgba(0,0,0,.03); }
+  .card h3 { margin:0 0 10px; font-size:18px; }
+  .muted { color:var(--muted); }
+  label { display:block; font-size:13px; margin:10px 0 6px; color:#374151; }
+  input { width:100%; padding:10px; border:1px solid #d1d5db; border-radius:10px; }
+  .row { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+  .kpi { display:grid; gap:4px; }
+  .kpi .num { font-size:28px; font-weight:700; }
+  .ok { color:var(--ok); } .warn { color:var(--warn); }
+  .flow { display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:14px; }
+  .pill { background:#eef2ff; border:1px solid #c7d2fe; color:#4338ca; padding:6px 10px; border-radius:999px; }
+  .arrow { opacity:.35 }
+  .center { text-align:center; }
+  .timeline { display:grid; grid-template-columns: repeat(3,1fr); gap:12px; }
+  .step { border-left:3px solid #dbeafe; padding-left:10px; }
+  .animate .duration { animation: pulse 1.2s ease-in-out infinite alternate; }
+  @keyframes pulse { from{ transform:scale(1); } to{ transform:scale(1.05); } }
+  details { margin-top:6px; }
+  summary { cursor:pointer; font-weight:600; }
+  footer { margin-top:32px; color:var(--muted); font-size:12px; }
+  .small { font-size:12px; }
+</style>
 </head>
 <body>
-    <header class="header">
-        <div class="container">
-            <h1>Law Enforcement Hiring Optimization</h1>
-            <p>Strategic Dashboard for Process Improvement & ROI Analysis</p>
-            <div style="margin-top: 1rem;">
-                <button class="btn btn-outline" onclick="exportData()" style="margin-right: 1rem;">Export Data</button>
-                <button class="btn btn-outline" onclick="window.print()">Print Dashboard</button>
-            </div>
-        </div>
-    </header>
-
-    <nav class="navigation">
-        <div class="container">
-            <div class="nav-tabs">
-                <div class="nav-tab active" data-section="roi">ROI Calculator</div>
-                <div class="nav-tab" data-section="process">Process Flow</div>
-                <div class="nav-tab" data-section="timeline">Implementation</div>
-                <div class="nav-tab" data-section="benchmarks">Benchmarks</div>
-                <div class="nav-tab" data-section="research">Research Library</div>
-            </div>
-        </div>
-    </nav>
-
-    <main class="container">
-        <!-- ROI Calculator Section -->
-        <section id="roi" class="dashboard-section active">
-            <h2 class="section-title">Interactive ROI Calculator</h2>
-            
-            <div class="grid-2">
-                <div class="card">
-                    <h3 class="card-title">Input Parameters</h3>
-                    
-                    <div class="input-group">
-                        <label for="annualHires">Annual New Hires</label>
-                        <input type="number" id="annualHires" value="50" min="1" max="500">
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="currentCost">Current Cost per Hire</label>
-                        <input type="number" id="currentCost" value="15000" min="5000" max="50000">
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="currentTime">Current Time to Hire (days)</label>
-                        <input type="number" id="currentTime" value="120" min="30" max="365">
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="polygraphCost">Polygraph Cost per Candidate</label>
-                        <input type="number" id="polygraphCost" value="800" min="400" max="1500">
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="timeReduction">Expected Time Reduction (%)</label>
-                        <input type="range" id="timeReduction" min="10" max="50" value="25">
-                        <span id="timeReductionValue">25%</span>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="liabilityReduction">Liability Risk Reduction (%)</label>
-                        <input type="range" id="liabilityReduction" min="15" max="60" value="35">
-                        <span id="liabilityReductionValue">35%</span>
-                    </div>
-                    
-                    <button class="btn" onclick="calculateROI()">Calculate ROI</button>
-                </div>
-                
-                <div class="card">
-                    <h3 class="card-title">ROI Analysis Results</h3>
-                    <div id="roiResults">
-                        <div class="metric-highlight">
-                            <h3 id="annualSavings">$0</h3>
-                            <p>Annual Cost Savings</p>
-                        </div>
-                        
-                        <div class="metric-highlight">
-                            <h3 id="roiPercentage">0%</h3>
-                            <p>Return on Investment</p>
-                        </div>
-                        
-                        <div class="metric-highlight">
-                            <h3 id="paybackPeriod">0</h3>
-                            <p>Months to Payback</p>
-                        </div>
-                        
-                        <div class="chart-container">
-                            <canvas id="roiChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Process Flow Section -->
-        <section id="process" class="dashboard-section">
-            <h2 class="section-title">Hiring Process Comparison</h2>
-            
-            <div class="card">
-                <h3 class="card-title">Current Process Flow</h3>
-                <div class="process-flow" id="currentProcess">
-                    <div class="process-step">Application</div>
-                    <div class="process-arrow">→</div>
-                    <div class="process-step">Background Check</div>
-                    <div class="process-arrow">→</div>
-                    <div class="process-step">Interviews</div>
-                    <div class="process-arrow">→</div>
-                    <div class="process-step">Medical/Psych</div>
-                    <div class="process-arrow">→</div>
-                    <div class="process-step">Final Review</div>
-                </div>
-                
-                <div class="metric-highlight">
-                    <h3>120 Days Average</h3>
-                    <p>Current Process Duration</p>
-                </div>
-            </div>
-            
-            <div class="card">
-                <h3 class="card-title">Optimized Process Flow</h3>
-                <div class="process-flow" id="optimizedProcess">
-                    <div class="process-step improved">Application</div>
-                    <div class="process-arrow">→</div>
-                    <div class="process-step improved">Polygraph Integration</div>
-                    <div class="process-arrow">→</div>
-                    <div class="process-step improved">Parallel Background</div>
-                    <div class="process-arrow">→</div>
-                    <div class="process-step improved">Streamlined Review</div>
-                    <div class="process-arrow">→</div>
-                    <div class="process-step improved">Final Decision</div>
-                </div>
-                
-                <div class="metric-highlight">
-                    <h3 id="optimizedDays">90 Days Average</h3>
-                    <p>Optimized Process Duration</p>
-                </div>
-            </div>
-            
-            <button class="btn" onclick="animateProcessFlow()">Animate Process Comparison</button>
-        </section>
-
-        <!-- Implementation Timeline Section -->
-        <section id="timeline" class="dashboard-section">
-            <h2 class="section-title">Implementation Timeline</h2>
-            
-            <div class="grid-3">
-                <div class="card">
-                    <h3 class="card-title">30-Day Phase</h3>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 100%"></div>
-                    </div>
-                    
-                    <div class="timeline-item">
-                        <div class="timeline-marker">1</div>
-                        <div class="timeline-content">
-                            <h4>Stakeholder Alignment</h4>
-                            <p>Executive buy-in, budget approval, team formation</p>
-                        </div>
-                    </div>
-                    
-                    <div class="timeline-item">
-                        <div class="timeline-marker">2</div>
-                        <div class="timeline-content">
-                            <h4>Vendor Selection</h4>
-                            <p>RFP process, polygraph examiner credentialing</p>
-                        </div>
-                    </div>
-                    
-                    <div class="timeline-item">
-                        <div class="timeline-marker">3</div>
-                        <div class="timeline-content">
-                            <h4>Policy Development</h4>
-                            <p>Legal review, procedure documentation</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <h3 class="card-title">60-Day Phase</h3>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 75%"></div>
-                    </div>
-                    
-                    <div class="timeline-item">
-                        <div class="timeline-marker">4</div>
-                        <div class="timeline-content">
-                            <h4>System Integration</h4>
-                            <p>HRIS integration, workflow automation setup</p>
-                        </div>
-                    </div>
-                    
-                    <div class="timeline-item">
-                        <div class="timeline-marker">5</div>
-                        <div class="timeline-content">
-                            <h4>Staff Training</h4>
-                            <p>HR team training, examiner certification</p>
-                        </div>
-                    </div>
-                    
-                    <div class="timeline-item">
-                        <div class="timeline-marker">6</div>
-                        <div class="timeline-content">
-                            <h4>Pilot Program</h4>
-                            <p>Limited rollout, process refinement</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <h3 class="card-title">90-Day Phase</h3>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 25%"></div>
-                    </div>
-                    
-                    <div class="timeline-item">
-                        <div class="timeline-marker">7</div>
-                        <div class="timeline-content">
-                            <h4>Full Deployment</h4>
-                            <p>Department-wide implementation</p>
-                        </div>
-                    </div>
-                    
-                    <div class="timeline-item">
-                        <div class="timeline-marker">8</div>
-                        <div class="timeline-content">
-                            <h4>Performance Monitoring</h4>
-                            <p>KPI tracking, outcome measurement</p>
-                        </div>
-                    </div>
-                    
-                    <div class="timeline-item">
-                        <div class="timeline-marker">9</div>
-                        <div class="timeline-content">
-                            <h4>Optimization</h4>
-                            <p>Process refinement, continuous improvement</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Benchmarks Section -->
-        <section id="benchmarks" class="dashboard-section">
-            <h2 class="section-title">Industry Benchmarking</h2>
-            
-            <div class="grid-2">
-                <div class="card">
-                    <h3 class="card-title">Comparative Metrics</h3>
-                    <div class="chart-container">
-                        <canvas id="benchmarkChart"></canvas>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <h3 class="card-title">Performance Indicators</h3>
-                    <div class="benchmark-comparison">
-                        <div class="benchmark-item">
-                            <div class="benchmark-value">67%</div>
-                            <p>Industry Average Success Rate</p>
-                        </div>
-                        <div class="benchmark-item">
-                            <div class="benchmark-value">85%</div>
-                            <p>With Polygraph Integration</p>
-                        </div>
-                        <div class="benchmark-item">
-                            <div class="benchmark-value">$18K</div>
-                            <p>Industry Cost per Hire</p>
-                        </div>
-                        <div class="benchmark-item">
-                            <div class="benchmark-value">$13.5K</div>
-                            <p>Optimized Cost per Hire</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Research Library Section -->
-        <section id="research" class="dashboard-section">
-            <h2 class="section-title">Research & Evidence Library</h2>
-            
-            <div class="research-grid">
-                <div class="research-item" onclick="openModal('research1')">
-                    <h4>Polygraph Reliability in Employment Screening</h4>
-                    <p>Comprehensive analysis of polygraph accuracy rates and legal considerations in law enforcement hiring.</p>
-                    <div class="source">American Polygraph Association, 2024</div>
-                </div>
-                
-                <div class="research-item" onclick="openModal('research2')">
-                    <h4>Cost-Benefit Analysis of Pre-Employment Testing</h4>
-                    <p>Economic impact study of various screening methods on hiring outcomes and organizational performance.</p>
-                    <div class="source">Public Personnel Management Journal, 2023</div>
-                </div>
-                
-                <div class="research-item" onclick="openModal('research3')">
-                    <h4>Legal Framework for Polygraph Use in Hiring</h4>
-                    <p>Updated legal analysis of state and federal regulations governing polygraph use in law enforcement.</p>
-                    <div class="source">International Association of Chiefs of Police, 2024</div>
-                </div>
-                
-                <div class="research-item" onclick="openModal('research4')">
-                    <h4>Process Optimization in Public Safety Hiring</h4>
-                    <p>Best practices and case studies from departments that successfully streamlined their hiring processes.</p>
-                    <div class="source">Police Executive Research Forum, 2023</div>
-                </div>
-                
-                <div class="research-item" onclick="openModal('research5')">
-                    <h4>Risk Management and Liability Reduction</h4>
-                    <p>Analysis of how comprehensive screening reduces organizational liability and improves officer performance.</p>
-                    <div class="source">Risk Management Society, 2024</div>
-                </div>
-                
-                <div class="research-item" onclick="openModal('research6')">
-                    <h4>Technology Integration in HR Processes</h4>
-                    <p>Study on digital transformation effects on hiring efficiency and candidate experience.</p>
-                    <div class="source">Society for Human Resource Management, 2023</div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Modal for Research Details -->
-    <div id="researchModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal()">&times;</span>
-            <div id="modalContent"></div>
-        </div>
+  <header>
+    <div class="wrap">
+      <h1>Law Enforcement Hiring Optimization</h1>
+      <p>Strategic Dashboard for Process Improvement & ROI Analysis</p>
+      <div class="toolbar">
+        <button id="exportBtn" class="btn">Export Data</button>
+        <button id="printBtn" class="btn">Print Dashboard</button>
+        <a class="btn" href="#roi">ROI Calculator</a>
+        <a class="btn" href="#process">Process Flow</a>
+        <a class="btn" href="#implementation">Implementation</a>
+        <a class="btn" href="#library">Research Library</a>
+      </div>
     </div>
+  </header>
 
-    <script>
-        // Global variables
-        var roiChart = null;
-        var benchmarkChart = null;
+  <main class="wrap">
+    <!-- ROI CALCULATOR -->
+    <section id="roi" class="card">
+      <h3>Interactive ROI Calculator</h3>
+      <p class="muted small">Note: simple demo math you can adjust later in the code (comments show where).</p>
+      <div class="grid">
+        <div>
+          <label>Annual New Hires</label>
+          <input id="inpHires" type="number" min="0" value="10" />
+          <label>Current Cost per Hire ($)</label>
+          <input id="inpCph" type="number" min="0" value="18000" />
+          <div class="row">
+            <div>
+              <label>Current Time to Hire (days)</label>
+              <input id="inpTth" type="number" min="0" value="120" />
+            </div>
+            <div>
+              <label>Expected Time Reduction (%)</label>
+              <input id="inpTimePct" type="number" min="0" max="100" value="25" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label>Polygraph Cost per Candidate ($)</label>
+              <input id="inpPoly" type="number" min="0" value="400" />
+            </div>
+            <div>
+              <label>Liability Risk Reduction (%)</label>
+              <input id="inpRiskPct" type="number" min="0" max="100" value="35" />
+            </div>
+          </div>
+          <button id="calcBtn" class="btn primary" style="margin-top:12px">Calculate ROI</button>
+        </div>
+        <div>
+          <div class="kpi"><span class="muted">Annual Cost Savings</span><span id="kpiSavings" class="num">$0</span></div>
+          <div class="kpi"><span class="muted">Return on Investment</span><span id="kpiRoi" class="num">0%</span></div>
+          <div class="kpi"><span class="muted">Months to Payback</span><span id="kpiPayback" class="num">0</span></div>
+          <details><summary>How are these estimated?</summary>
+            <p class="small muted">
+              Demo assumptions: savings per hire = <code>currentCostPerHire * (riskReduction%)</code>.  
+              Annual savings = savings per hire × hires. Program cost = polygraph cost × hires.  
+              ROI = (savings − cost) ÷ cost. Payback months = (12 × cost) ÷ max(savings, 1).  
+              Edit these formulas in the script to match your policy.
+            </p>
+          </details>
+        </div>
+      </div>
+    </section>
 
-        // Navigation functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            var tabs = document.querySelectorAll('.nav-tab');
-            for (var i = 0; i < tabs.length; i++) {
-                tabs[i].addEventListener('click', function() {
-                    // Remove active class from all tabs and sections
-                    var allTabs = document.querySelectorAll('.nav-tab');
-                    for (var j = 0; j < allTabs.length; j++) {
-                        allTabs[j].classList.remove('active');
-                    }
-                    var allSections = document.querySelectorAll('.dashboard-section');
-                    for (var k = 0; k < allSections.length; k++) {
-                        allSections[k].classList.remove('active');
-                    }
-                    
-                    // Add active class to clicked tab and corresponding section
-                    this.classList.add('active');
-                    var sectionId = this.getAttribute('data-section');
-                    document.getElementById(sectionId).classList.add('active');
-                    
-                    // Initialize charts when switching to relevant sections
-                    if (sectionId === 'benchmarks') {
-                        setTimeout(initBenchmarkChart, 100);
-                    }
-                });
-            }
+    <!-- PROCESS COMPARISON -->
+    <section id="process" class="card">
+      <h3>Hiring Process Comparison</h3>
+      <div class="grid">
+        <div>
+          <p class="muted">Current Process Flow</p>
+          <div class="flow">
+            <span class="pill">Application</span><span class="arrow">→</span>
+            <span class="pill">Background Check</span><span class="arrow">→</span>
+            <span class="pill">Interviews</span><span class="arrow">→</span>
+            <span class="pill">Medical/Psych</span><span class="arrow">→</span>
+            <span class="pill">Final Review</span>
+          </div>
+          <p class="duration center muted"><strong>120</strong> Days Average</p>
+        </div>
+        <div>
+          <p class="muted">Optimized Process Flow</p>
+          <div class="flow">
+            <span class="pill">Application</span><span class="arrow">→</span>
+            <span class="pill">Polygraph Integration</span><span class="arrow">→</span>
+            <span class="pill">Parallel Background</span><span class="arrow">→</span>
+            <span class="pill">Streamlined Review</span><span class="arrow">→</span>
+            <span class="pill">Final Decision</span>
+          </div>
+          <p class="duration center muted"><strong>90</strong> Days Average</p>
+        </div>
+      </div>
+      <div class="toolbar" style="margin-top:12px">
+        <button id="animateBtn" class="btn">Animate Process Comparison</button>
+      </div>
+    </section>
 
-            // Initialize ROI calculator and event listeners
-            calculateROI();
-            
-            var inputs = ['annualHires', 'currentCost', 'currentTime', 'polygraphCost'];
-            for (var i = 0; i < inputs.length; i++) {
-                var element = document.getElementById(inputs[i]);
-                if (element) {
-                    element.addEventListener('input', calculateROI);
-                }
-            }
-
-            // Range input event listeners
-            document.getElementById('timeReduction').addEventListener('input', function() {
-                document.getElementById('timeReductionValue').textContent = this.value + '%';
-            });
-
-            document.getElementById('liabilityReduction').addEventListener('input', function() {
-                document.getElementById('liabilityReductionValue').textContent = this.value + '%';
-            });
-        });
-
-        // ROI Calculator
-        function calculateROI() {
-            var annualHires = parseInt(document.getElementById('annualHires').value) || 50;
-            var currentCost = parseInt(document.getElementById('currentCost').value) || 15000;
-            var currentTime = parseInt(document.getElementById('currentTime').value) || 120;
-            var polygraphCost = parseInt(document.getElementById('polygraphCost').value) || 800;
-            var timeReduction = parseInt(document.getElementById('timeReduction').value) / 100;
-            var liabilityReduction = parseInt(document.getElementById('liabilityReduction').value) / 100;
-
-            // Calculate savings
-            var timeSavingsPerHire = currentCost * 0.3 * timeReduction;
-            var liabilitySavings = currentCost * 0.2 * liabilityReduction;
-            var totalSavingsPerHire = timeSavingsPerHire + liabilitySavings - polygraphCost;
-            var annualSavings = Math.max(0, totalSavingsPerHire * annualHires);
-            var investmentCost = polygraphCost * annualHires + 50000;
-            var roiPercentage = annualSavings > 0 ? (annualSavings / investmentCost) * 100 : 0;
-            var paybackPeriod = annualSavings > 0 ? Math.max(1, investmentCost / (annualSavings / 12)) : 0;
-
-            // Update display
-            document.getElementById('annualSavings').textContent = ' + annualSavings.toLocaleString();
-            document.getElementById('roiPercentage').textContent = Math.round(roiPercentage) + '%';
-            document.getElementById('paybackPeriod').textContent = Math.round(paybackPeriod) + ' months';
-
-            // Update chart
-            updateROIChart(annualSavings, investmentCost);
-        }
-
-        function updateROIChart(savings, investment) {
-            var ctx = document.getElementById('roiChart');
-            if (!ctx) return;
-            
-            if (roiChart) {
-                roiChart.destroy();
-            }
-
-            if (typeof Chart !== 'undefined') {
-                roiChart = new Chart(ctx.getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: ['Year 1', 'Year 2', 'Year 3'],
-                        datasets: [{
-                            label: 'Cumulative Savings',
-                            data: [savings - investment, (savings * 2) - investment, (savings * 3) - investment],
-                            backgroundColor: 'rgba(16, 185, 129, 0.8)',
-                            borderColor: 'rgba(16, 185, 129, 1)',
-                            borderWidth: 2
-                        }, {
-                            label: 'Investment Cost',
-                            data: [investment, investment, investment],
-                            backgroundColor: 'rgba(239, 68, 68, 0.8)',
-                            borderColor: 'rgba(239, 68, 68, 1)',
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: 'ROI Projection Over 3 Years'
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    callback: function(value) {
-                                        return ' + value.toLocaleString();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        }
-
-        // Process Flow Animation
-        function animateProcessFlow() {
-            var currentSteps = document.querySelectorAll('#currentProcess .process-step');
-            var optimizedSteps = document.querySelectorAll('#optimizedProcess .process-step');
-            
-            // Reset animations
-            for (var i = 0; i < currentSteps.length; i++) {
-                currentSteps[i].classList.remove('active');
-            }
-            for (var i = 0; i < optimizedSteps.length; i++) {
-                optimizedSteps[i].classList.remove('active');
-            }
-            
-            // Animate current process
-            for (var i = 0; i < currentSteps.length; i++) {
-                (function(index) {
-                    setTimeout(function() {
-                        currentSteps[index].classList.add('active');
-                    }, index * 800);
-                })(i);
-            }
-            
-            // Animate optimized process after current is done
-            setTimeout(function() {
-                for (var i = 0; i < optimizedSteps.length; i++) {
-                    (function(index) {
-                        setTimeout(function() {
-                            optimizedSteps[index].classList.add('active');
-                        }, index * 600);
-                    })(i);
-                }
-            }, currentSteps.length * 800 + 1000);
-            
-            // Update optimized days based on time reduction
-            var timeReduction = parseInt(document.getElementById('timeReduction').value) / 100;
-            var currentDays = 120;
-            var optimizedDays = Math.round(currentDays * (1 - timeReduction));
-            document.getElementById('optimizedDays').textContent = optimizedDays + ' Days Average';
-        }
-
-        // Benchmark Chart
-        function initBenchmarkChart() {
-            var ctx = document.getElementById('benchmarkChart');
-            if (!ctx) return;
-            
-            if (benchmarkChart) {
-                benchmarkChart.destroy();
-            }
-            
-            if (typeof Chart !== 'undefined') {
-                benchmarkChart = new Chart(ctx.getContext('2d'), {
-                    type: 'radar',
-                    data: {
-                        labels: ['Cost Efficiency', 'Time to Hire', 'Success Rate', 'Legal Compliance', 'Quality of Hire'],
-                        datasets: [{
-                            label: 'Current Process',
-                            data: [60, 45, 67, 70, 65],
-                            backgroundColor: 'rgba(239, 68, 68, 0.2)',
-                            borderColor: 'rgba(239, 68, 68, 1)',
-                            borderWidth: 2
-                        }, {
-                            label: 'Optimized Process',
-                            data: [85, 80, 85, 95, 90],
-                            backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                            borderColor: 'rgba(16, 185, 129, 1)',
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: 'Performance Comparison'
-                            }
-                        },
-                        scales: {
-                            r: {
-                                beginAtZero: true,
-                                max: 100,
-                                ticks: {
-                                    stepSize: 20
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        }
-
-        // Modal functionality
-        var researchData = {
-            research1: {
-                title: "Polygraph Reliability in Employment Screening",
-                content: "<h3>Executive Summary</h3><p>Recent studies demonstrate that polygraph examinations, when conducted by certified examiners using standardized protocols, achieve accuracy rates of 85-95% in employment screening contexts.</p><h3>Key Findings</h3><ul><li><strong>Accuracy Rate:</strong> 85-95% when properly administered</li><li><strong>False Positive Rate:</strong> 5-15% in employment contexts</li><li><strong>Legal Compliance:</strong> Permitted for law enforcement hiring in most jurisdictions</li><li><strong>Best Practices:</strong> Pre-test interview crucial for accuracy</li></ul><h3>Recommendations</h3><p>Implementation should include certified examiner training, standardized question protocols, and integration with existing background check processes.</p>",
-                source: "American Polygraph Association, 2024"
-            },
-            research2: {
-                title: "Cost-Benefit Analysis of Pre-Employment Testing",
-                content: "<h3>Economic Impact Study</h3><p>Comprehensive analysis of 47 law enforcement agencies shows significant ROI from enhanced pre-employment screening.</p><h3>Financial Metrics</h3><ul><li><strong>Average Cost Reduction:</strong> 23% per hire</li><li><strong>Time Savings:</strong> 30-40 days reduction in hiring process</li><li><strong>Liability Reduction:</strong> 35% fewer post-hire issues</li><li><strong>ROI Timeline:</strong> 8-12 months to break even</li></ul><h3>Long-term Benefits</h3><p>Departments report improved officer retention, reduced training costs, and enhanced community trust over 3-year study period.</p>",
-                source: "Public Personnel Management Journal, 2023"
-            },
-            research3: {
-                title: "Legal Framework for Polygraph Use in Hiring",
-                content: "<h3>Regulatory Landscape</h3><p>The Employee Polygraph Protection Act (EPPA) provides specific exemptions for law enforcement agencies, enabling strategic use in hiring processes.</p><h3>Legal Considerations</h3><ul><li><strong>Federal Exemption:</strong> Law enforcement exempt from EPPA restrictions</li><li><strong>State Variations:</strong> Most states permit law enforcement polygraph use</li><li><strong>Documentation:</strong> Proper record keeping essential</li><li><strong>Appeals Process:</strong> Clear procedures for result challenges</li></ul><h3>Risk Mitigation</h3><p>Proper implementation includes legal review, examiner certification, and established appeal procedures to minimize liability.</p>",
-                source: "International Association of Chiefs of Police, 2024"
-            },
-            research4: {
-                title: "Process Optimization in Public Safety Hiring",
-                content: "<h3>Best Practice Analysis</h3><p>Study of 25 departments that successfully modernized hiring processes, identifying key success factors and common pitfalls.</p><h3>Success Factors</h3><ul><li><strong>Leadership Support:</strong> Executive champion essential</li><li><strong>Technology Integration:</strong> HRIS system compatibility</li><li><strong>Staff Training:</strong> Comprehensive change management</li><li><strong>Phased Implementation:</strong> Pilot program approach</li></ul><h3>Measured Outcomes</h3><p>Participating departments averaged 32% reduction in time-to-hire and 28% improvement in new hire quality scores.</p>",
-                source: "Police Executive Research Forum, 2023"
-            },
-            research5: {
-                title: "Risk Management and Liability Reduction",
-                content: "<h3>Organizational Risk Analysis</h3><p>Comprehensive screening programs significantly reduce department liability exposure and improve long-term officer performance.</p><h3>Risk Reduction Areas</h3><ul><li><strong>Misconduct Prevention:</strong> 40% reduction in disciplinary actions</li><li><strong>Litigation Costs:</strong> 45% decrease in hiring-related lawsuits</li><li><strong>Insurance Premiums:</strong> Potential 15-20% reduction</li><li><strong>Reputation Protection:</strong> Improved community relations</li></ul><h3>Performance Correlation</h3><p>Officers who passed comprehensive screening show 25% better performance ratings and 30% longer retention rates.</p>",
-                source: "Risk Management Society, 2024"
-            },
-            research6: {
-                title: "Technology Integration in HR Processes",
-                content: "<h3>Digital Transformation Impact</h3><p>Modern HRIS integration streamlines workflows, improves candidate experience, and provides valuable analytics for process improvement.</p><h3>Technology Benefits</h3><ul><li><strong>Workflow Automation:</strong> 50% reduction in manual tasks</li><li><strong>Data Analytics:</strong> Real-time process monitoring</li><li><strong>Candidate Experience:</strong> Improved communication and tracking</li><li><strong>Compliance Tracking:</strong> Automated documentation</li></ul><h3>Implementation Recommendations</h3><p>Successful integration requires API compatibility, staff training, and phased rollout approach with continuous feedback loops.</p>",
-                source: "Society for Human Resource Management, 2023"
-            }
-        };
-
-        function openModal(researchId) {
-            var modal = document.getElementById('researchModal');
-            var content = document.getElementById('modalContent');
-            var data = researchData[researchId];
-            
-            if (data) {
-                content.innerHTML = '<h2>' + data.title + '</h2>' + data.content + '<div style="margin-top: 2rem; padding-top: 1rem; border-top: 2px solid var(--border-gray);"><p><strong>Source:</strong> ' + data.source + '</p></div>';
-                modal.style.display = 'block';
-            }
-        }
-
-        function closeModal() {
-            document.getElementById('researchModal').style.display = 'none';
-        }
-
-        // Close modal when clicking outside
-        window.addEventListener('click', function(event) {
-            var modal = document.getElementById('researchModal');
-            if (event.target === modal) {
-                closeModal();
-            }
-        });
-
-        // Export functionality
-        function exportData() {
-            try {
-                var data = {
-                    timestamp: new Date().toISOString(),
-                    parameters: {
-                        annualHires: document.getElementById('annualHires').value,
-                        currentCost: document.getElementById('currentCost').value,
-                        currentTime: document.getElementById('currentTime').value,
-                        polygraphCost: document.getElementById('polygraphCost').value,
-                        timeReduction: document.getElementById('timeReduction').value,
-                        liabilityReduction: document.getElementById('liabilityReduction').value
-                    },
-                    results: {
-                        annualSavings: document.getElementById('annualSavings').textContent,
-                        roiPercentage: document.getElementById('roiPercentage').textContent,
-                        paybackPeriod: document.getElementById('paybackPeriod').textContent
-                    }
-                };
-                
-                var dataStr = JSON.stringify(data, null, 2);
-                var dataBlob = new Blob([dataStr], {type: 'application/json'});
-                
-                var link = document.createElement('a');
-                link.href = window.URL.createObjectURL(dataBlob);
-                link.download = 'roi-analysis-' + new Date().toISOString().split('T')[0] + '.json';
-                link.click();
-            } catch (error) {
-                console.log('Export not available in this environment');
-                alert('Export functionality will work when deployed to GitHub Pages');
-            }
-        }
-
-        // Responsive chart handling
-        window.addEventListener('resize', function() {
-            if (roiChart && roiChart.resize) {
-                roiChart.resize();
-            }
-            if (benchmarkChart && benchmarkChart.resize) {
-                benchmarkChart.resize();
-            }
-        });
-    </script>
-</body>
-</html>
+    <!-- IMPLEMENTATION -->
+    <section id="implementation" class="card">
+      <h3>Implementation Timeline</h3>
+      <div class="timeline">
+        <div class="card step">
+          <h4>30-Day Phase</h4>
+          <ol>
+            <li><strong>Stakeholder Alignment</strong><br><span class="muted small">Executive buy-in, budget approval, team formation</span></li>
+            <li><strong>Vendor Selection</strong><br><span class="muted small">RFP process, examiner credentialing</span></li>
+            <li><strong>Policy Development</strong><br><span class="muted small"
